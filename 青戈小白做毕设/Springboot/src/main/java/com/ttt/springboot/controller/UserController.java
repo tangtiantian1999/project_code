@@ -2,12 +2,16 @@ package com.ttt.springboot.controller;
 
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.ttt.springboot.common.Constants;
+import com.ttt.springboot.common.Result;
+import com.ttt.springboot.controller.tdo.UserDto;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
@@ -60,6 +64,41 @@ public class UserController {
     @GetMapping("/{id}")
     public List<User> findOne(@PathVariable Integer id) {
         return userService.list();
+    }
+
+    @GetMapping("/username/{username}")
+    public Result findOne(@PathVariable String username) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username",username);
+        return Result.sucess(userService.getOne(queryWrapper));
+    }
+
+
+    @PostMapping("/register")
+    public Result register(@RequestBody UserDto user){
+        String username = user.getUsername();
+        String password = user.getPassword();
+        if(StrUtil.isBlank(username) || StrUtil.isBlank(password)){
+            return Result.error(Constants.CODE_400,"参数错误");
+        }
+        return Result.sucess(userService.register(user));
+    }
+
+    /**
+     * 登录校验，先校验一下发过来的数据是不是空的
+     * 如果是的话就没必要去数据库再查一遍了
+     * @param user
+     * @return
+     */
+    @PostMapping("/login")
+    public Result login(@RequestBody UserDto user){
+        String username = user.getUsername();
+        String password = user.getPassword();
+        if(StrUtil.isBlank(username) || StrUtil.isBlank(password)){
+            return Result.error(Constants.CODE_400,"参数错误");
+        }
+        UserDto dto = userService.login(user);
+        return Result.sucess(dto);
     }
 
     /**
