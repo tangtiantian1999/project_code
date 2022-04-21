@@ -9,6 +9,7 @@ import com.ttt.springboot.exception.ServiceException;
 import com.ttt.springboot.mapper.UserMapper;
 import com.ttt.springboot.service.IUserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.ttt.springboot.utils.TokenUtils;
 import org.springframework.stereotype.Service;
 
 import java.lang.invoke.ConstantCallSite;
@@ -25,12 +26,14 @@ import java.lang.invoke.ConstantCallSite;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
 
     @Override
-    public UserDto login(UserDto user) {
-        User one = getUserInfo(user);
+    public UserDto login(UserDto userDto) {
+        User one = getUserInfo(userDto);
         /*注意这个判断密码是否正确的是业务异常，不能写在try里面不然throw出去的600或被500catch到*/
         if(one!=null){
-            BeanUtil.copyProperties(one,user,true);
-            return user;
+            BeanUtil.copyProperties(one,userDto,true);
+            String token = TokenUtils.genToken(one.getId().toString(),one.getPassword());
+            userDto.setToken(token);
+            return userDto;
         }else {
             throw new ServiceException(Constants.CODE_600,"用户名或密码错误");
         }
