@@ -42,28 +42,28 @@ public class UserController {
     private IUserService userService;
 
     @PostMapping
-    public Boolean save(@RequestBody User user) {
-        return userService.saveOrUpdate(user);
+    public Result save(@RequestBody User user) {
+        return Result.sucess(userService.saveOrUpdate(user));
     }
 
     @DeleteMapping("/{id}")
-    public Boolean delete(@PathVariable Integer id) {
-        return userService.removeById(id);
+    public Result delete(@PathVariable Integer id) {
+        return Result.sucess(userService.removeById(id));
     }
 
     @PostMapping("/del/batch")
-    public boolean deleteBatch(@RequestBody List<Integer> ids){
-        return userService.removeBatchByIds(ids);
+    public Result deleteBatch(@RequestBody List<Integer> ids){
+        return Result.sucess(userService.removeBatchByIds(ids));
     }
 
     @GetMapping
-    public List<User> findAll() {
-        return userService.list();
+    public Result findAll() {
+        return Result.sucess(userService.list());
     }
 
     @GetMapping("/{id}")
-    public List<User> findOne(@PathVariable Integer id) {
-        return userService.list();
+    public Result findOne(@PathVariable Integer id) {
+        return Result.sucess(userService.list());
     }
 
     @GetMapping("/username/{username}")
@@ -107,7 +107,7 @@ public class UserController {
      * 当模糊查询数据为空时，不进行拼接，因为数据库中的字段可能为null值，查出来的数据可能会不对
      */
     @GetMapping("/page")
-    public IPage<User> findPage(@RequestParam Integer pageNum,
+    public Result findPage(@RequestParam Integer pageNum,
                                 @RequestParam Integer pageSize,
                                 @RequestParam(defaultValue = "") String username,
                                 @RequestParam(defaultValue = "") String email,
@@ -125,7 +125,7 @@ public class UserController {
             queryWrapper.like("address",address);
         }
         queryWrapper.orderByDesc("id");
-        return userService.page(page,queryWrapper);
+        return Result.sucess(userService.page(page,queryWrapper));
     }
 
 
